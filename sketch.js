@@ -11,12 +11,13 @@ function setup() {
    grid.setupGrid();
    grid.removeSingleIslands();
    grid.buildMap();
+   grid.calculateLines();
 }
 
 function draw() {
    background(125);
-   grid.drawLines();
    grid.drawGrid();
+   grid.drawLines();
 
    if (typeof actor !== 'undefined') {
       actor.move();

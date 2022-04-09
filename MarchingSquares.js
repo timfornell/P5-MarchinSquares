@@ -73,7 +73,7 @@ class MarchingSquares {
             index = index | this.pointGrid[x + 1][y + 1].binary << 1;
             index = index | this.pointGrid[x][y + 1].binary << 0;
 
-            this.cellGrid[x][y] = index;
+            this.cellGrid[x][y] = {index: index, lines: []};
          }
       }
    }
@@ -94,17 +94,29 @@ class MarchingSquares {
       return mappedValue;
    }
 
+   drawLine(linePoints) {
+      line(
+         linePoints.start.x, linePoints.start.y,
+         linePoints.end.x, linePoints.end.y);
+   }
+
    drawLines() {
+      stroke(56);
+      fill(56);
+      for (let x = 0; x < this.numXCells; x++) {
+         for (let y = 0; y < this.numYCells; y++) {
+            this.cellGrid[x][y].lines.forEach(this.drawLine);
+         }
+      }
+   }
+
+   calculateLines() {
       var cellWidth = this.gridXSize;
       var cellHeight = this.gridYSize;
-      var halfCellWidth = this.gridXSize / 2; // half cell width
-      var halfCellHeight = this.gridYSize / 2; // half cell height
 
       for (let x = 0; x < this.numXCells; x++) {
          for (let y = 0; y < this.numYCells; y++) {
-            stroke(56);
-            fill(56);
-            var index = this.cellGrid[x][y];
+            var index = this.cellGrid[x][y].index;
             var topLeft = createVector(x * cellWidth, y * cellHeight);
             var bottomRight = createVector(topLeft.x + cellWidth, topLeft.y + cellHeight);
 
@@ -120,35 +132,99 @@ class MarchingSquares {
             if (index == 0) {
                // Empty cell
             } else if (index == 1) {
-               line(leftEdgePoint.x, leftEdgePoint.y, bottomEdgePoint.x, bottomEdgePoint.y);
+               this.cellGrid[x][y].lines.push(
+                  {
+                     start: createVector(leftEdgePoint.x, leftEdgePoint.y),
+                     end: createVector(bottomEdgePoint.x, bottomEdgePoint.y)
+                  });
             } else if (index == 2) {
-               line(bottomEdgePoint.x, bottomEdgePoint.y, rightEdgePoint.x, rightEdgePoint.y);
+               this.cellGrid[x][y].lines.push(
+                  {
+                     start: createVector(bottomEdgePoint.x, bottomEdgePoint.y),
+                     end: createVector(rightEdgePoint.x, rightEdgePoint.y)
+                  });
             } else if (index == 3) {
-               line(leftEdgePoint.x, leftEdgePoint.y, rightEdgePoint.x, rightEdgePoint.y);
+               this.cellGrid[x][y].lines.push(
+                  {
+                     start: createVector(leftEdgePoint.x, leftEdgePoint.y),
+                     end: createVector(rightEdgePoint.x, rightEdgePoint.y)
+                  });
             } else if (index == 4) {
-               line(topEdgePoint.x, topEdgePoint.y, rightEdgePoint.x, rightEdgePoint.y);
+               this.cellGrid[x][y].lines.push(
+                  {
+                     start: createVector(topEdgePoint.x, topEdgePoint.y),
+                     end: createVector(rightEdgePoint.x, rightEdgePoint.y)
+                  });
             } else if (index == 5) {
-               line(leftEdgePoint.x, leftEdgePoint.y, topEdgePoint.x, topEdgePoint.y);
-               line(bottomEdgePoint.x, bottomEdgePoint.y, rightEdgePoint.x, rightEdgePoint.y);
+               this.cellGrid[x][y].lines.push(
+                  {
+                     start: createVector(leftEdgePoint.x, leftEdgePoint.y),
+                     end: createVector(topEdgePoint.x, topEdgePoint.y)
+                  });
+               this.cellGrid[x][y].lines.push(
+                  {
+                     start: createVector(bottomEdgePoint.x, bottomEdgePoint.y),
+                     end: createVector(rightEdgePoint.x, rightEdgePoint.y)
+                  });
             } else if (index == 6) {
-               line(topEdgePoint.x, topEdgePoint.y, bottomEdgePoint.x, bottomEdgePoint.y);
+               this.cellGrid[x][y].lines.push(
+                  {
+                     start: createVector(topEdgePoint.x, topEdgePoint.y),
+                     end: createVector(bottomEdgePoint.x, bottomEdgePoint.y)
+                  });
             } else if (index == 7) {
-               line(leftEdgePoint.x, leftEdgePoint.y, topEdgePoint.x, topEdgePoint.y);
+               this.cellGrid[x][y].lines.push(
+                  {
+                     start: createVector(leftEdgePoint.x, leftEdgePoint.y),
+                     end: createVector(topEdgePoint.x, topEdgePoint.y)
+                  });
             } else if (index == 8) {
-               line(leftEdgePoint.x, leftEdgePoint.y, topEdgePoint.x, topEdgePoint.y);
+               this.cellGrid[x][y].lines.push(
+                  {
+                     start: createVector(leftEdgePoint.x, leftEdgePoint.y),
+                     end: createVector(topEdgePoint.x, topEdgePoint.y)
+                  });
             } else if (index == 9) {
-               line(topEdgePoint.x, topEdgePoint.y, bottomEdgePoint.x, bottomEdgePoint.y);
+               this.cellGrid[x][y].lines.push(
+                  {
+                     start: createVector(topEdgePoint.x, topEdgePoint.y),
+                     end: createVector(bottomEdgePoint.x, bottomEdgePoint.y)
+                  });
             } else if (index == 10) {
-               line(leftEdgePoint.x, leftEdgePoint.y, bottomEdgePoint.x, bottomEdgePoint.y);
-               line(topEdgePoint.x, topEdgePoint.y, rightEdgePoint.x, rightEdgePoint.y);
+               this.cellGrid[x][y].lines.push(
+                  {
+                     start: createVector(leftEdgePoint.x, leftEdgePoint.y),
+                     end: createVector(bottomEdgePoint.x, bottomEdgePoint.y)
+                  });
+               this.cellGrid[x][y].lines.push(
+                  {
+                     start: createVector(topEdgePoint.x, topEdgePoint.y),
+                     end: createVector(rightEdgePoint.x, rightEdgePoint.y)
+                  });
             } else if (index == 11) {
-               line(topEdgePoint.x, topEdgePoint.y, rightEdgePoint.x, rightEdgePoint.y);
+               this.cellGrid[x][y].lines.push(
+                  {
+                     start: createVector(topEdgePoint.x, topEdgePoint.y),
+                     end: createVector(rightEdgePoint.x, rightEdgePoint.y)
+                  });
             } else if (index == 12) {
-               line(leftEdgePoint.x, leftEdgePoint.y, rightEdgePoint.x, rightEdgePoint.y);
+               this.cellGrid[x][y].lines.push(
+                  {
+                     start: createVector(leftEdgePoint.x, leftEdgePoint.y),
+                     end: createVector(rightEdgePoint.x, rightEdgePoint.y)
+                  });
             } else if (index == 13) {
-               line(bottomEdgePoint.x, bottomEdgePoint.y, rightEdgePoint.x, rightEdgePoint.y);
+               this.cellGrid[x][y].lines.push(
+                  {
+                     start: createVector(bottomEdgePoint.x, bottomEdgePoint.y),
+                     end: createVector(rightEdgePoint.x, rightEdgePoint.y)
+                  });
             } else if (index == 14) {
-               line(leftEdgePoint.x, leftEdgePoint.y, bottomEdgePoint.x, bottomEdgePoint.y);
+               this.cellGrid[x][y].lines.push(
+                  {
+                     start: createVector(leftEdgePoint.x, leftEdgePoint.y),
+                     end: createVector(bottomEdgePoint.x, bottomEdgePoint.y)
+                  });
             } else if (index == 15) {
                // Empty cell
             }
