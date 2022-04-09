@@ -16,13 +16,16 @@ class MarchingSquares {
       for (let x = 0; x < this.numXPoints; x++) {
          this.pointGrid[x] = [];
          for (let y = 0; y < this.numYPoints; y++) {
-            var value = random(0, 1);
+            // Values should never be equal to 0 or 1
+            const epsilon = 1e-4;
+            var value = random(0 + epsilon, 1 - epsilon);
+            var binaryValue = 0;
 
             if (value <= this.binaryThreshold) {
-               this.pointGrid[x][y] = 1;
-            } else {
-               this.pointGrid[x][y] = 0;
+               binaryValue = 1;
             }
+
+            this.pointGrid[x][y] = {binary: binaryValue, value: value}
          }
       }
    }
@@ -30,8 +33,9 @@ class MarchingSquares {
    drawGrid() {
       for (let x = 0; x < this.numXPoints; x++) {
          for (let y = 0; y < this.numYPoints; y++) {
-           stroke(this.pointGrid[x][y] * 255);
-           point(x * this.gridXSize, y * this.gridYSize);
+           stroke(this.pointGrid[x][y].binary * 255);
+           fill(this.pointGrid[x][y].binary * 255);
+           circle(x * this.gridXSize, y * this.gridYSize, 1);
          }
        }
    }
@@ -44,14 +48,30 @@ class MarchingSquares {
          for (let y = 0; y < this.numXCells; y++) {
             var index = 0;
             // Represent the corners by a 4-bit number, top left is MSB and bottom left is LSB
-            index = index | this.pointGrid[x][y] << 3;
-            index = index | this.pointGrid[x + 1][y] << 2;
-            index = index | this.pointGrid[x + 1][y + 1] << 1;
-            index = index | this.pointGrid[x][y + 1] << 0;
+            index = index | this.pointGrid[x][y].binary << 3;
+            index = index | this.pointGrid[x + 1][y].binary << 2;
+            index = index | this.pointGrid[x + 1][y + 1].binary << 1;
+            index = index | this.pointGrid[x][y + 1].binary << 0;
 
             this.cellGrid[x][y] = index;
          }
       }
+   }
+
+   /**
+    * "Interpolated" value between two corners
+    * @param {number} lowValue refers to the corner with the lowest x or y coordinate
+    * @param {number} highValue refers to the corner with the largest x or y coordinate
+    */
+   getInterpolatedValue(lowValue, highValue) {
+      const valueRange = 2; // diff can have values in [-1, 1]
+      const desiredValueRange = 1; // Size of desired range [0, 1]
+      var diff = highValue - lowValue;
+
+      // This is valid as long ass the diff values are centered around 0
+      var mappedValue = (diff + desiredValueRange) / (valueRange / desiredValueRange);
+
+      return mappedValue;
    }
 
    drawLines() {
@@ -66,55 +86,49 @@ class MarchingSquares {
             fill(56);
             var index = this.cellGrid[x][y];
             var topLeft = createVector(x * cellWidth, y * cellHeight);
+            var bottomRight = createVector(topLeft.x + cellWidth, topLeft.y + cellHeight);
+
+            var leftEdgeValueFactor = this.getInterpolatedValue(this.pointGrid[x][y].value, this.pointGrid[x][y + 1].value);
+            var rightEdgeValueFactor = this.getInterpolatedValue(this.pointGrid[x + 1][y].value, this.pointGrid[x + 1][y + 1].value);
+            var topEdgeValueFactor = this.getInterpolatedValue(this.pointGrid[x][y].value, this.pointGrid[x + 1][y].value);
+            var bottomEdgeValueFactor = this.getInterpolatedValue(this.pointGrid[x][y + 1].value, this.pointGrid[x + 1][y + 1].value);
+            var leftEdgePoint = createVector(topLeft.x, topLeft.y + cellHeight * leftEdgeValueFactor);
+            var rightEdgePoint = createVector(bottomRight.x, topLeft.y + cellHeight * rightEdgeValueFactor);
+            var topEdgePoint = createVector(topLeft.x + cellWidth * topEdgeValueFactor, topLeft.y);
+            var bottomEdgePoint = createVector(topLeft.x + cellWidth * bottomEdgeValueFactor, bottomRight.y);
 
             if (index == 0) {
                // Empty cell
             } else if (index == 1) {
-               line(topLeft.x, topLeft.y + halfCellHeight,
-                    topLeft.x + halfCellWidth, topLeft.y + cellHeight);
+               line(leftEdgePoint.x, leftEdgePoint.y, bottomEdgePoint.x, bottomEdgePoint.y);
             } else if (index == 2) {
-               line(topLeft.x + halfCellWidth, topLeft.y + cellHeight,
-                    topLeft.x + cellWidth, topLeft.y + halfCellHeight);
+               line(bottomEdgePoint.x, bottomEdgePoint.y, rightEdgePoint.x, rightEdgePoint.y);
             } else if (index == 3) {
-               line(topLeft.x, topLeft.y + halfCellHeight,
-                    topLeft.x + cellWidth, topLeft.y + halfCellHeight);
+               line(leftEdgePoint.x, leftEdgePoint.y, rightEdgePoint.x, rightEdgePoint.y);
             } else if (index == 4) {
-               line(topLeft.x + halfCellWidth, topLeft.y,
-                    topLeft.x + cellWidth, topLeft.y + halfCellHeight);
+               line(topEdgePoint.x, topEdgePoint.y, rightEdgePoint.x, rightEdgePoint.y);
             } else if (index == 5) {
-               line(topLeft.x + halfCellWidth, topLeft.y,
-                    topLeft.x, topLeft.y + halfCellHeight);
-               line(topLeft.x + halfCellWidth, topLeft.y + cellHeight,
-                    topLeft.x + cellWidth, topLeft.y + halfCellHeight);
+               line(leftEdgePoint.x, leftEdgePoint.y, topEdgePoint.x, topEdgePoint.y);
+               line(bottomEdgePoint.x, bottomEdgePoint.y, rightEdgePoint.x, rightEdgePoint.y);
             } else if (index == 6) {
-               line(topLeft.x + halfCellWidth, topLeft.y,
-                    topLeft.x + halfCellWidth, topLeft.y + cellHeight);
+               line(topEdgePoint.x, topEdgePoint.y, bottomEdgePoint.x, bottomEdgePoint.y);
             } else if (index == 7) {
-               line(topLeft.x, topLeft.y + halfCellHeight,
-                    topLeft.x + halfCellWidth, topLeft.y);
+               line(leftEdgePoint.x, leftEdgePoint.y, topEdgePoint.x, topEdgePoint.y);
             } else if (index == 8) {
-               line(topLeft.x, topLeft.y + halfCellHeight,
-                    topLeft.x + halfCellWidth, topLeft.y);
+               line(leftEdgePoint.x, leftEdgePoint.y, topEdgePoint.x, topEdgePoint.y);
             } else if (index == 9) {
-               line(topLeft.x + halfCellWidth, topLeft.y,
-                    topLeft.x + halfCellWidth, topLeft.y + cellHeight);
+               line(topEdgePoint.x, topEdgePoint.y, bottomEdgePoint.x, bottomEdgePoint.y);
             } else if (index == 10) {
-               line(topLeft.x, topLeft.y + halfCellHeight,
-                    topLeft.x + halfCellWidth, topLeft.y + cellHeight);
-               line(topLeft.x + halfCellWidth, topLeft.y ,
-                    topLeft.x + cellWidth, topLeft.y + halfCellHeight);
+               line(leftEdgePoint.x, leftEdgePoint.y, bottomEdgePoint.x, bottomEdgePoint.y);
+               line(topEdgePoint.x, topEdgePoint.y, rightEdgePoint.x, rightEdgePoint.y);
             } else if (index == 11) {
-               line(topLeft.x + halfCellWidth, topLeft.y,
-                    topLeft.x + cellWidth, topLeft.y + halfCellHeight);
+               line(topEdgePoint.x, topEdgePoint.y, rightEdgePoint.x, rightEdgePoint.y);
             } else if (index == 12) {
-               line(topLeft.x, topLeft.y + halfCellHeight,
-                    topLeft.x + cellWidth, topLeft.y + halfCellHeight);
+               line(leftEdgePoint.x, leftEdgePoint.y, rightEdgePoint.x, rightEdgePoint.y);
             } else if (index == 13) {
-               line(topLeft.x + halfCellWidth, topLeft.y + cellHeight,
-                    topLeft.x + cellWidth, topLeft.y + halfCellHeight);
+               line(bottomEdgePoint.x, bottomEdgePoint.y, rightEdgePoint.x, rightEdgePoint.y);
             } else if (index == 14) {
-               line(topLeft.x, topLeft.y + halfCellHeight,
-                    topLeft.x + halfCellWidth, topLeft.y + cellHeight);
+               line(leftEdgePoint.x, leftEdgePoint.y, bottomEdgePoint.x, bottomEdgePoint.y);
             } else if (index == 15) {
                // Empty cell
             }
