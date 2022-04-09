@@ -17,7 +17,7 @@ class MarchingSquares {
          this.pointGrid[x] = [];
          for (let y = 0; y < this.numYPoints; y++) {
             // Values should never be equal to 0 or 1
-            const epsilon = 1e-4;
+            const epsilon = 1e-2;
             var value = random(0 + epsilon, 1 - epsilon);
             var binaryValue = 0;
 
