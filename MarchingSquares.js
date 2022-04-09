@@ -30,6 +30,26 @@ class MarchingSquares {
       }
    }
 
+   removeSingleIslands() {
+      for (let x = 1; x < this.numXPoints - 1; x++) {
+         for (let y = 1; y < this.numYPoints - 1; y++) {
+            var surroundedByOnes = (this.pointGrid[x - 1][y].binary == 1 &&
+                                    this.pointGrid[x + 1][y].binary == 1 &&
+                                    this.pointGrid[x][y - 1].binary == 1 &&
+                                    this.pointGrid[x][y + 1].binary == 1);
+            var surroundedByZeros = (this.pointGrid[x - 1][y].binary == 0 &&
+                                     this.pointGrid[x + 1][y].binary == 0 &&
+                                     this.pointGrid[x][y - 1].binary == 0 &&
+                                     this.pointGrid[x][y + 1].binary == 0);
+            if (surroundedByOnes) {
+               this.pointGrid[x][y].binary = 1;
+            } else if(surroundedByZeros) {
+               this.pointGrid[x][y].binary = 0;
+            }
+         }
+      }
+   }
+
    drawGrid() {
       for (let x = 0; x < this.numXPoints; x++) {
          for (let y = 0; y < this.numYPoints; y++) {
