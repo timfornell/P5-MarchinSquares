@@ -2,10 +2,10 @@ var grid;
 var actor;
 
 function setup() {
-   createCanvas(1000, 1000);
+   createCanvas(900, 900);
 
-   let gridXSize = 500;
-   let gridYSize = 500;
+   let gridXSize = 300;
+   let gridYSize = 300;
    let binaryThreshold = 0.4;
    grid = new MarchingSquares(gridXSize, gridYSize, binaryThreshold);
    grid.setupGrid();

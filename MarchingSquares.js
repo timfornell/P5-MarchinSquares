@@ -115,6 +115,22 @@ class MarchingSquares {
          surroundingCells.push(this.cellGrid[currentCellxIndex][currentCellyIndex + 1]);
       }
 
+      if (currentCellxIndex > 0 && currentCellyIndex > 0) {
+         surroundingCells.push(this.cellGrid[currentCellxIndex - 1][currentCellyIndex - 1]);
+      }
+
+      if (currentCellxIndex < this.numXCells - 1 && currentCellyIndex < this.numYCells - 1) {
+         surroundingCells.push(this.cellGrid[currentCellxIndex + 1][currentCellyIndex + 1]);
+      }
+
+      if (currentCellxIndex > 0 && currentCellyIndex < this.numYCells - 1) {
+         surroundingCells.push(this.cellGrid[currentCellxIndex - 1][currentCellyIndex + 1]);
+      }
+
+      if (currentCellxIndex < this.numXCells - 1 && currentCellyIndex > 0) {
+         surroundingCells.push(this.cellGrid[currentCellxIndex + 1][currentCellyIndex - 1]);
+      }
+
       return surroundingCells;
    }
 
