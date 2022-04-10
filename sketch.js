@@ -4,8 +4,8 @@ var actor;
 function setup() {
    createCanvas(1000, 1000);
 
-   let gridXSize = 200;
-   let gridYSize = 200;
+   let gridXSize = 500;
+   let gridYSize = 500;
    let binaryThreshold = 0.4;
    grid = new MarchingSquares(gridXSize, gridYSize, binaryThreshold);
    grid.setupGrid();
@@ -20,7 +20,7 @@ function draw() {
    grid.drawLines();
 
    if (typeof actor !== 'undefined') {
-      actor.move();
+      actor.move(grid.getSurroundingCells(actor.position));
       actor.draw();
    }
 

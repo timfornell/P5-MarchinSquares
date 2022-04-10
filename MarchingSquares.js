@@ -94,10 +94,32 @@ class MarchingSquares {
       return mappedValue;
    }
 
+   getSurroundingCells(positionVector) {
+      var currentCellxIndex = floor(positionVector.x / this.gridXSize);
+      var currentCellyIndex = floor(positionVector.y / this.gridYSize);
+      var surroundingCells = [this.cellGrid[currentCellxIndex][currentCellyIndex]];
+
+      if (currentCellxIndex > 0) {
+         surroundingCells.push(this.cellGrid[currentCellxIndex - 1][currentCellyIndex]);
+      }
+
+      if (currentCellyIndex > 0) {
+         surroundingCells.push(this.cellGrid[currentCellxIndex][currentCellyIndex - 1]);
+      }
+
+      if (currentCellxIndex < this.numXCells - 1) {
+         surroundingCells.push(this.cellGrid[currentCellxIndex + 1][currentCellyIndex]);
+      }
+
+      if (currentCellyIndex < this.numYCells - 1) {
+         surroundingCells.push(this.cellGrid[currentCellxIndex][currentCellyIndex + 1]);
+      }
+
+      return surroundingCells;
+   }
+
    drawLine(linePoints) {
-      line(
-         linePoints.start.x, linePoints.start.y,
-         linePoints.end.x, linePoints.end.y);
+      line(linePoints.start.x, linePoints.start.y, linePoints.end.x, linePoints.end.y);
    }
 
    drawLines() {
