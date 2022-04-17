@@ -7,7 +7,7 @@ class Actor {
 
    draw() {
       stroke(0);
-      fill(255, 0, 0);
+      fill(255, 0, 0, 120);
       circle(this.position.x, this.position.y, this.size);
    }
 
@@ -34,26 +34,38 @@ class Actor {
       this.tryToMove(surroundingCells, xDirection, yDirection);
    }
 
+   pointIsInsideActor(desiredPosition, positionOnLine) {
+      return (desiredPosition.x - positionOnLine.x) ** 2 + (desiredPosition.y - positionOnLine.y) ** 2 <= (this.size / 2) ** 2
+   }
+
    tryToMove(surroundingCells, xDirection, yDirection) {
       var desiredPosition = this.position.copy();
       desiredPosition.add(xDirection * this.speed, yDirection * this.speed);
+      var collisions = [];
 
       for (let cell of surroundingCells) {
          for (let gridLine of cell.lines) {
             var closestPointOnLine = this.getVectorToClosestPointOnLine(gridLine, this.position);
             line(this.position.x, this.position.y, closestPointOnLine.x, closestPointOnLine.y);
 
-            if ((desiredPosition.x - closestPointOnLine.x) ** 2 + (desiredPosition.y - closestPointOnLine.y) ** 2 <= (this.size / 2) ** 2)
+            // This works as long as the object isn't moving 'too' fast
+            if (this.pointIsInsideActor(desiredPosition, closestPointOnLine))
             {
                // Can't move to the exact position, try to find another that moves in the wanted direction
-               return;
-            } else {
-
+               collisions.push({gridLine: gridLine, closestPoint: closestPointOnLine});
             }
          }
       }
 
-      this.position = desiredPosition.copy();
+      if (collisions.length == 0) {
+         this.position = desiredPosition.copy();
+         this.position.x = min(width - this.size / 2, this.position.x);
+         this.position.x = max(0 + this.size / 2, this.position.x);
+         this.position.y = min(height - this.size / 2, this.position.y);
+         this.position.y = max(0 + this.size / 2, this.position.y);
+      } else {
+         // Place to handle collisions
+      }
    }
 
    getVectorToClosestPointOnLine(gridLine, position) {
