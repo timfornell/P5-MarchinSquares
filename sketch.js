@@ -4,8 +4,8 @@ var actor;
 function setup() {
    createCanvas(900, 900);
 
-   let gridXSize = 30;
-   let gridYSize = 30;
+   let gridXSize = 300;
+   let gridYSize = 300;
    let binaryThreshold = 0.4;
    grid = new MarchingSquares(gridXSize, gridYSize, binaryThreshold);
    grid.setupGrid();
@@ -16,7 +16,7 @@ function setup() {
 
 function draw() {
    background(125);
-   // grid.drawGrid();
+   grid.drawGrid();
    grid.drawLines();
 
    if (typeof actor !== 'undefined') {
@@ -29,6 +29,6 @@ function draw() {
 function mouseClicked() {
    if (typeof actor === 'undefined') {
       console.log("Spawn actor");
-      actor = new Actor(mouseX, mouseY, 10);
+      actor = new Actor(mouseX, mouseY, 100);
    }
 }
